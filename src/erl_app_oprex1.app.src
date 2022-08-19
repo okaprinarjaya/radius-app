@@ -1,0 +1,11 @@
+{application,
+ erl_app_oprex1,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {erl_app_oprex1_app, []}},
+  {applications, [kernel, stdlib, cowboy, eradius]},
+  {env, []},
+  {modules, []},
+  {licenses, ["Apache-2.0"]},
+  {links, []}]}.

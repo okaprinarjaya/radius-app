@@ -1,0 +1,36 @@
+-ifndef( DICTIONARY_MIKROTIK_INCLUDED ).
+-define( DICTIONARY_MIKROTIK_INCLUDED, true ).
+
+-define( 'Mikrotik_Switching_Filter' , {14988,30} ).
+-define( 'Mikrotik_Wireless_Maxsignal' , {14988,29} ).
+-define( 'Mikrotik_Wireless_Minsignal' , {14988,28} ).
+-define( 'Mikrotik_Wireless_VLANIDtype' , {14988,27} ).
+-define( 'Mikrotik_Wireless_VLANID' , {14988,26} ).
+-define( 'Mikortik_DHCP_Option_Param_STR2' , {14988,25} ).
+-define( 'Mikrotik_DHCP_Option_Param_STR1' , {14988,24} ).
+-define( 'Mikrotik_DHCP_Option_Set' , {14988,23} ).
+-define( 'Mikrotik_Delegated_IPv6_Pool' , {14988,22} ).
+-define( 'Mikrotik_Wireless_Comment' , {14988,21} ).
+-define( 'Mikrotik_Wireless_MPKey' , {14988,20} ).
+-define( 'Mikrotik_Address_List' , {14988,19} ).
+-define( 'Mikrotik_Total_Limit_Gigawords' , {14988,18} ).
+-define( 'Mikrotik_Total_Limit' , {14988,17} ).
+-define( 'Mikrotik_Wireless_PSK' , {14988,16} ).
+-define( 'Mikrotik_Xmit_Limit_Gigawords' , {14988,15} ).
+-define( 'Mikrotik_Recv_Limit_Gigawords' , {14988,14} ).
+-define( 'Mikrotik_Advertise_Interval' , {14988,13} ).
+-define( 'Mikrotik_Advertise_URL' , {14988,12} ).
+-define( 'Mikrotik_Mark_Id' , {14988,11} ).
+-define( 'Mikrotik_Host_IP' , {14988,10} ).
+-define( 'Mikrotik_Realm' , {14988,9} ).
+-define( 'Mikrotik_Rate_Limit' , {14988,8} ).
+-define( 'Mikrotik_Wireless_Enc_Key' , {14988,7} ).
+-define( 'Mikrotik_Wireless_Enc_Algo' , {14988,6} ).
+-define( 'Mikrotik_Wireless_Skip_Dot1x' , {14988,5} ).
+-define( 'Mikrotik_Wireless_Forward' , {14988,4} ).
+-define( 'Mikrotik_Group' , {14988,3} ).
+-define( 'Mikrotik_Xmit_Limit' , {14988,2} ).
+-define( 'Mikrotik_Recv_Limit' , {14988,1} ).
+-define( 'Mikrotik' , 14988 ).
+
+-endif. % DICTIONARY_MIKROTIK_INCLUDED
