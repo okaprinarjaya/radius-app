@@ -5,8 +5,9 @@
 -export([init/2]).
 
 init(Req0, State) ->
+    {ok, IOList} = template_compiler:render("main.html", #{<<"a">> => 1}, [], undefined),
     Req = cowboy_req:reply(200,
-                           #{<<"content-type">> => <<"text/plain">>},
-                           <<"Hello Erlang! Hello World!">>,
+                           #{<<"content-type">> => <<"text/html; charset=utf-8">>},
+                           IOList,
                            Req0),
     {ok, Req, State}.
