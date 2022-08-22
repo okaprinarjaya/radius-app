@@ -2,7 +2,7 @@
 
 -behaviour(cowboy_handler).
 
--export([init/2]).
+-export([init/2, terminate/3]).
 
 init(Req0, State) ->
     {ok, IOList} = template_compiler:render("main.html", #{<<"a">> => 1}, [], undefined),
@@ -11,3 +11,5 @@ init(Req0, State) ->
                            IOList,
                            Req0),
     {ok, Req, State}.
+
+terminate(_A, _B, _C) -> ok.
