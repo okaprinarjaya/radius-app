@@ -8,13 +8,19 @@ start(_StartType, _StartArgs) ->
     Host_Paths = [
         {"/", hello_handler, []},
         {"/voucher-categories", voucher_categories_handler, []},
-        {"/json", json_handler, []},
         {"/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}}
     ],
     Host = {'_', Host_Paths},
     
     Dispatch = cowboy_router:compile([Host]),
-    {ok, _} = cowboy:start_clear(my_http_listener, [{port, 8080}], #{env => #{dispatch => Dispatch}}),
+    {ok, _} = cowboy:start_clear(
+        my_http_listener,
+        [{port, 8080}],
+        #{
+            env => #{dispatch => Dispatch},
+            middlewares => [handler_middleware, cowboy_router, cowboy_handler]
+        }
+    ),
     
     erl_app_oprex1_sup:start_link().
 

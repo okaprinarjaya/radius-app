@@ -12,6 +12,7 @@ terminate(_A, _B, _C) -> ok.
 
 method_handler(<<"GET">>, Req0, State) ->
     {ok, myutils_http:response_ok(Req0, undefined, <<"Hello world! From GET">>), State};
+
 method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     InsertValuesParam = [
@@ -26,5 +27,6 @@ method_handler(<<"POST">>, Req0, State) ->
 
     RespData = #{<<"hello">> => <<"world!">>, <<"attrs">> => #{<<"foo">> => <<"bar">>}},
     {ok, myutils_http:response_created(Req0, RespData, undefined), State};
+
 method_handler(_, Req0, State) ->
     {ok, myutils_http:response_ok(Req0, undefined, <<"Hello world! From ANY other than GET POST">>), State}.
