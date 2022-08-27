@@ -11,13 +11,9 @@ init(Req0, State) ->
 terminate(_A, _B, _C) -> ok.
 
 method_handler(<<"GET">>, Req0, State) ->
-    Req = cowboy_req:reply(200,#{<<"content-type">> => <<"text/html; charset=utf-8">>}, "Hello World! GET METHOD", Req0),
-    {ok, Req, State};
+    {ok, myutils_http:response_ok(Req0, undefined, <<"Hello world! From GET">>), State};
 method_handler(<<"POST">>, Req0, State) ->
-    true = cowboy_req:has_body(Req0),
-    {ok, ReqBody, _Req} = myutils_http:request_read_body(Req0, <<"">>),
-    ReqData = jiffy:decode(ReqBody, [return_maps]),
-
+    ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     InsertValuesParam = [
         maps:get(<<"categoryName">>, ReqData),
         maps:get(<<"priceBasic">>, ReqData),
@@ -31,5 +27,4 @@ method_handler(<<"POST">>, Req0, State) ->
     RespData = #{<<"hello">> => <<"world!">>, <<"attrs">> => #{<<"foo">> => <<"bar">>}},
     {ok, myutils_http:response_created(Req0, RespData, undefined), State};
 method_handler(_, Req0, State) ->
-    Req = cowboy_req:reply(200,#{<<"content-type">> => <<"text/html; charset=utf-8">>}, "Hello World! ANY METHOD OTHER THAN GET POST", Req0),
-    {ok, Req, State}.
+    {ok, myutils_http:response_ok(Req0, undefined, <<"Hello world! From ANY other than GET POST">>), State}.

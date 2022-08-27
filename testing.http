@@ -2,8 +2,8 @@ POST http://localhost:8080/voucher-categories
 Content-Type: application/json
 
 {
-    "categoryName": "Voucher 3 Jam - 1Mbps",
-    "priceBasic": 3000,
+    "categoryName": "Voucher 3 - 5Mbps",
+    "priceBasic": 10000,
     "durationValue": 3,
     "durationUnit": "HOUR",
     "createdBy": "SYSTEM"
