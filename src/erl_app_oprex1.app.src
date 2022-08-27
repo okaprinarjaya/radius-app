@@ -4,7 +4,7 @@
   {vsn, "0.1.0"},
   {registered, []},
   {mod, {erl_app_oprex1_app, []}},
-  {applications, [kernel, stdlib, sasl, cowboy, eradius, hashids, template_compiler]},
+  {applications, [kernel, stdlib, sasl, cowboy, eradius, hashids, jiffy, mysql_poolboy, template_compiler]},
   {env, [{template_dir, "priv/webpage_templates"}]},
   {modules, []},
   {licenses, ["Apache-2.0"]},
