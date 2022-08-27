@@ -29,8 +29,7 @@ method_handler(<<"POST">>, Req0, State) ->
     mysql_poolboy:query(pool1, SqlInsertStr , InsertValuesParam),
 
     RespData = #{<<"hello">> => <<"world!">>, <<"attrs">> => #{<<"foo">> => <<"bar">>}},
-    {ok, myutils_http:response_ok(Req0, RespData, undefined), State};
+    {ok, myutils_http:response_created(Req0, RespData, undefined), State};
 method_handler(_, Req0, State) ->
     Req = cowboy_req:reply(200,#{<<"content-type">> => <<"text/html; charset=utf-8">>}, "Hello World! ANY METHOD OTHER THAN GET POST", Req0),
     {ok, Req, State}.
-
