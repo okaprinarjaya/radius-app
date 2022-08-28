@@ -5,13 +5,23 @@
 -export([init/2, terminate/3]).
 
 init(Req0, State) ->
-    Method = cowboy_req:method(Req0),
-    method_handler(Method, Req0, State).
+    method_handler(cowboy_req:method(Req0), Req0, State).
 
 terminate(_A, _B, _C) -> ok.
 
 method_handler(<<"GET">>, Req0, State) ->
-    {ok, myutils_http:response_ok(Req0, undefined, <<"Hello world! From GET">>), State};
+    UserAuthInfo = maps:get(user_auth_info, Req0),
+    RespMsg = [
+        <<"Hello!">>,
+        <<" ">>,
+        maps:get(<<"userName">>, UserAuthInfo), 
+        <<", with ID: ">>, 
+        maps:get(<<"userId">>, UserAuthInfo), 
+        <<", Role: ">>,
+        maps:get(<<"role">>, UserAuthInfo)
+    ],
+
+    {ok, myutils_http:response_ok(Req0, undefined, iolist_to_binary(RespMsg)), State};
 
 method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
