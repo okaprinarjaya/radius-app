@@ -9,3 +9,42 @@ Content-Type: application/json
     "createdBy": "SYSTEM"
 }
 
+###
+
+POST http://localhost:8080/_create-jwt
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/voucher-categories
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjE2NzQ2MzksInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.-7xZ0X_993HNIypFzVWdP0QR6c2Zcg_xClHhBo2ZsYo
+
+###
+
+POST  http://localhost:8080/internal/ids
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTgyZjI3ZmMtZjNhNC00OTdjLWI3N2YtODE1NTJlNjM4NDRmIiwicnQiOmZhbHNlLCJleHAiOjE2NTkyNDIxNzUsImlhdCI6MTY1OTIzODU3NSwiaXNzIjoiV2FydGVrLUlEIiwibmFtZSI6IklHTiBPa2EgUHJpbmFyamF5YSIsInJvbGVzIjpbIm1pdHJhX21hbmFnZXIiXSwicHRfY29kZSI6IiJ9.q_4KceffflUMV2aMn4hTV9Dh-nQZvz5I2zMopA2Kh0fj0AAoGoTTrwafwA7a_KwO-usyB6XnN8Zv_xJEG80iYw
+Svc-User: internalService
+Svc-Pass: internalServiceUser!!
+
+{
+    "ids": [
+        {
+            "id": "2e0e3cae-fa9f-49ce-9991-1556ccd5e1c2"
+        },
+        {
+            "id": "810e0fdb-54d2-4556-8a85-c82e05393c14"
+        },
+        {
+            "id": "cfce77b4-2efa-4cc2-ac24-b5f4c5f13afa"
+        },
+        {
+            "id": "a4729fc2-6a28-4ea7-8e77-217d5d77a180"
+        },
+        {
+            "id": "be03d17a-ee3a-4066-ad1e-253ef8b9f28c"
+        }
+    ]
+}

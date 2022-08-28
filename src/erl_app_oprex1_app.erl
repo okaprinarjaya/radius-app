@@ -8,6 +8,7 @@ start(_StartType, _StartArgs) ->
     Host_Paths = [
         {"/", hello_handler, []},
         {"/voucher-categories", voucher_categories_handler, []},
+        {"/_create-jwt", create_jwt_handler, []},
         {"/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}}
     ],
     Host = {'_', Host_Paths},
