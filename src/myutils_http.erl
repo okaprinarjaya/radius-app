@@ -1,6 +1,13 @@
 -module(myutils_http).
 
--export([request_read_body_json/2, response_ok/3, response_created/3, response_unauthorized/3, response_notfound/3]).
+-export([
+    request_read_body_json/2, 
+    response_ok/3, 
+    response_created/3, 
+    response_unauthorized/3, 
+    response_notfound/3,
+    response_error/3
+]).
 
 response_ok(Req0, Data, Message) ->
     RespData = #{
@@ -25,6 +32,14 @@ response_unauthorized(Req0, Data, Message) ->
         <<"data">> => if Data =:= undefined -> null; true -> Data end
     },
     cowboy_req:reply(401, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
+
+response_error(Req0, Data, Message) ->
+    RespData = #{
+        <<"status">> => <<"ERROR">>,
+        <<"message">> => if Message =:= undefined -> <<"Internal server error">>; true -> Message end,
+        <<"data">> => if Data =:= undefined -> null; true -> Data end
+    },
+    cowboy_req:reply(500, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
 
 response_notfound(Req0, Data, Message) ->
     RespData = #{

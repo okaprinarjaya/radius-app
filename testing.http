@@ -1,5 +1,7 @@
 POST http://localhost:8080/voucher-categories
 Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjE3ODMxMTgsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.xvORBrqKe35JxT1EBlJ0glTSTrN_YFUQNEr86FSyl3Q
 
 {
     "categoryName": "Voucher 3 - 5Mbps",
@@ -7,6 +9,31 @@ Content-Type: application/json
     "durationValue": 3,
     "durationUnit": "HOUR",
     "createdBy": "SYSTEM"
+}
+
+###
+
+POST http://localhost:8080/sites
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjIxNzM5MzksInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fuVlQ12yziP4qa_iWf1f5Oepyfx3UulJ-r17I435AVI
+
+{
+    "siteName": "MENGWITANI JAYA RAYA - AGOY",
+    "address": "Jalan Raya Mengwitani, Mengwi, Badung",
+    "createdBy": "SYSTEM"
+}
+
+###
+
+POST http://localhost:8080/vouchers
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjIxOTMzMTMsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.OzkhALtzGpR657-Vg_E826eOHM6v7AJMlynDynG41Cs
+
+{
+    "voucherCategoryId": 3,
+    "siteId": 1
 }
 
 ###
@@ -19,7 +46,7 @@ Content-Type: application/json
 GET http://localhost:8080/voucher-categories
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjE2OTMzNTIsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.dEzsYCFHCxyppM6Ci7pVwSFD9J_JvXSrC3JPbVLb0ys
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjE3ODcxODEsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.Tgl_PE6zLNhorxFJ9B1nCqCL5Bby6COB-gfXnKctVG4
 
 ###
 
@@ -48,3 +75,10 @@ Svc-Pass: internalServiceUser!!
         }
     ]
 }
+
+###
+
+POST https://property-advertising-svc-api.tinggal.id/v1/properties/options/property-detail-types
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI0QWd5V2ZpVmt2RDRDRFNNZG90VU5reVloeSIsInVzZXJUeXBlIjoiUFJPVklERVIiLCJpZE9yZ2FuaXphdGlvbiI6IjI0QWh2REFVMW1NTmRIdkxPbkJLcHJ3RHNkQyIsImlhdCI6MTY0MzA3OTUyNiwiZXhwIjoxNjc0NjE1NTI2fQ.75tO4bH28m85EtNuVkFmRmSHKK7n2KayMGKw440Or2Y
