@@ -1,6 +1,6 @@
 -module(myutils_identifier).
 
--export([generate_voucher_code/2, generate_salt/0]).
+-export([generate_voucher_code/2, generate_salt/0, generate_jwt/1]).
 
 generate_voucher_code(Salt, SiteId) ->
     TimeStr = integer_to_list(erlang:monotonic_time(nanosecond)),
@@ -21,3 +21,9 @@ generate_voucher_code(Salt, SiteId) ->
 
 generate_salt() ->
     binary_to_list(base64:encode(crypto:strong_rand_bytes(16))).
+
+generate_jwt(Payload) ->
+    {ok, SecretKey} = application:get_env(erl_app_oprex1, jwt_secret_key),
+    {ok, ExpiredInSeconds} = application:get_env(erl_app_oprex1, jwt_expired_seconds),
+    {ok, Token} = jwt:encode(<<"HS256">>, Payload, ExpiredInSeconds, SecretKey),
+    Token.

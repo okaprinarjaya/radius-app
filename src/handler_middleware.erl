@@ -19,11 +19,17 @@ execute(Req0, Env) ->
                     case string:split(Value, " ") of
                         [_Bearer, Token] ->
                             {ok, SecretKey} = application:get_env(erl_app_oprex1, jwt_secret_key),
-                            case jwt:decode(Token, SecretKey) of
+                            try jwt:decode(Token, SecretKey) of
                                 {ok, Decoded} ->
                                     {ok, Req0#{user_auth_info => Decoded}, maps:put(user_auth_info, Decoded, Env)};
                                 {error,expired} ->
-                                    {stop, myutils_http:response_unauthorized(Req0, undefined, <<"Token expired">>)}
+                                    {stop, myutils_http:response_unauthorized(Req0, undefined, <<"Expired token">>)};
+                                {error,invalid_token} ->
+                                    {stop, myutils_http:response_unauthorized(Req0, undefined, <<"Invalid token">>)}
+                            catch
+                                Exception:Reason ->
+                                    logger:error("error when decoding JWT: ~p:~p", [Exception, Reason]),
+                                    {stop, myutils_http:response_error(Req0, undefined, undefined)}
                             end;
                         [_] ->
                             {stop, myutils_http:response_unauthorized(Req0, undefined, undefined)};

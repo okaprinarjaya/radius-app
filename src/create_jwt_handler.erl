@@ -12,9 +12,7 @@ terminate(_A, _B, _C) -> ok.
 
 method_handler(<<"POST">>, Req0, State) ->
     Payload = [{userId, "abc123"}, {userName, "Oka Prinarjaya"}, {role, "OPERATOR"}],
-    {ok, SecretKey} = application:get_env(erl_app_oprex1, jwt_secret_key),
-    {ok, ExpiredInSeconds} = application:get_env(erl_app_oprex1, jwt_expired_seconds),
-    {ok, Token} = jwt:encode(<<"HS256">>, Payload, ExpiredInSeconds, SecretKey),
+    Token = myutils_identifier:generate_jwt(Payload),
 
     {ok, myutils_http:response_ok(Req0, Token, undefined), State};
 method_handler(_, Req0, State) ->
