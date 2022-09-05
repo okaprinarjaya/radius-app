@@ -5,11 +5,12 @@
 -export([execute/2]).
 
 execute(Req0, Env) ->
-    ExcludePathList = [<<"/_create-jwt">>],
+    ExcludePathList = [<<"/">>, <<"/login">>, <<"/_create-jwt">>],
     IsMember = lists:member(cowboy_req:path(Req0), ExcludePathList),
+    IsAssets = string:find(cowboy_req:path(Req0), <<"assets">>),
     
     if 
-        IsMember =:= true ->
+        IsMember =:= true orelse IsAssets =/= nomatch ->
             {ok, Req0, Env};
         true ->
             case cowboy_req:header(<<"authorization">>, Req0, undefined) of
