@@ -50,11 +50,15 @@ DROP TABLE IF EXISTS `sites`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sites` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `selling_price_percentage` int(11) NOT NULL,
   `site_name` varchar(512) NOT NULL,
+  `address` varchar(128) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL,
+  `created_by` varchar(64) NOT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,8 +144,18 @@ CREATE TABLE `voucher_usages` (
   `end_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `voucher_usages_UN` (`voucher_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+CREATE TABLE `voucher_usage_devices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `voucher_usage_id` int(11) NOT NULL,
+  `voucher_code` varchar(16) NOT NULL,
+  `auth_device_token` varchar(64) NOT NULL,
+  `mac` varchar(256) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `voucher_usages`
@@ -164,12 +178,13 @@ CREATE TABLE `vouchers` (
   `voucher_category_id` int(11) NOT NULL,
   `voucher_code` varchar(16) NOT NULL,
   `site_id` int(11) NOT NULL,
+  `max_multi_device` int(11) DEFAULT NULL,
   `is_sold` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vouchers_UN` (`voucher_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

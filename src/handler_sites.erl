@@ -1,4 +1,4 @@
--module(sites_handler).
+-module(handler_sites).
 
 -behaviour(cowboy_handler).
 

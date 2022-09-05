@@ -1,4 +1,4 @@
--module(handler_middleware).
+-module(middleware_handler).
 
 -behaviour(cowboy_middleware).
 

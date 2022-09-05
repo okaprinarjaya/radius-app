@@ -2,15 +2,15 @@
 
 -behaviour(application).
 
--export([start/2, stop/1, test_hashids/0]).
+-export([start/2, stop/1]).
 
 start(_StartType, _StartArgs) ->
     Host_Paths = [
-        {"/", hello_handler, []},
-        {"/voucher-categories", voucher_categories_handler, []},
-        {"/sites", sites_handler, []},
-        {"/vouchers", vouchers_handler, []},
-        {"/_create-jwt", create_jwt_handler, []},
+        {"/", handler_hello, []},
+        {"/voucher-categories", handler_voucher_categories, []},
+        {"/sites", handler_sites, []},
+        {"/vouchers", handler_vouchers, []},
+        {"/_create-jwt", handler_create_jwt, []},
         {"/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}}
     ],
     Host = {'_', Host_Paths},
@@ -21,7 +21,7 @@ start(_StartType, _StartArgs) ->
         [{port, 8080}],
         #{
             env => #{dispatch => Dispatch},
-            middlewares => [handler_middleware, cowboy_router, cowboy_handler]
+            middlewares => [middleware_handler, cowboy_router, cowboy_handler]
         }
     ),
     
@@ -31,22 +31,3 @@ stop(_State) ->
     ok.
 
 %% internal functions
-test_hashids() ->
-    TimeStr = integer_to_list(erlang:monotonic_time(nanosecond)),
-    TimeStrLen = string:length(TimeStr),
-    Digit = string:slice(TimeStr, TimeStrLen - 8, TimeStrLen),
-    Salt = binary_to_list(base64:encode(crypto:strong_rand_bytes(16))),
-
-    Ctx = hashids:new([{salt, Salt}, {min_hash_length, 8}]),
-    Encoded = hashids:encode(Ctx, list_to_integer(Digit)),
-
-    {{Year,Month,Day}, _} = calendar:local_time(),
-    VoucherNumberStr = lists:concat([
-        integer_to_list(Day),
-        integer_to_list(Month),
-        string:slice(integer_to_list(Year), 2, 4),
-        "1",
-        string:uppercase(Encoded)
-    ]),
-
-    io:format("ID: ~s~n", [VoucherNumberStr]).
