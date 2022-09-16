@@ -28,12 +28,13 @@ method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     VoucherCategoryId = maps:get(<<"voucherCategoryId">>, ReqData),
     SiteId = maps:get(<<"siteId">>, ReqData),
+    MaxMultiDevice = maps:get(<<"maxMultiDevice">>, ReqData),
 
     Salt = myutils_identifier:generate_salt(),
     VoucherCode = myutils_identifier:generate_voucher_code(Salt, SiteId),
 
-    InsertValuesParam = [VoucherCategoryId,VoucherCode,SiteId],
-    SqlInsertStr = <<"INSERT INTO vouchers (voucher_category_id, voucher_code, site_id) VALUES (?, ?, ?)">>,  
+    InsertValuesParam = [VoucherCategoryId, VoucherCode,SiteId, MaxMultiDevice],
+    SqlInsertStr = <<"INSERT INTO vouchers (voucher_category_id, voucher_code, site_id, max_multi_device, is_sold) VALUES (?, ?, ?, ?, 0)">>,  
     ok = mysql_poolboy:query(pool1, SqlInsertStr , InsertValuesParam),
 
     {ok, myutils_http:response_created(Req0, undefined, undefined), State};

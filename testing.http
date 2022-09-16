@@ -1,0 +1,45 @@
+POST http://localhost:8080/_create-jwt
+Content-Type: application/json
+Accept: application/json
+
+###
+
+POST http://localhost:8080/sites
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+
+{
+    "sellingPricePercentage": 5,
+    "siteName": "Cell & Net",
+    "address": "Jalan Raya, Anjatan, Kec. Anjatan, Kabupaten Indramayu, Jawa Barat 45256",
+    "createdBy": "SYSTEM"
+}
+
+###
+
+POST http://localhost:8080/voucher-categories
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+
+{
+    "categoryName": "1 Hari",
+    "priceBasic": 10000,
+    "durationValue": 1,
+    "durationUnit": "DAY",
+    "createdBy": "SYSTEM"
+}
+
+###
+
+POST http://localhost:8080/vouchers
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+
+{
+    "voucherCategoryId": 2,
+    "siteId": 1,
+    "maxMultiDevice": 3
+}

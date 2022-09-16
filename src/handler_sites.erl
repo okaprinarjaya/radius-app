@@ -27,11 +27,12 @@ method_handler(<<"GET">>, Req0, State) ->
 method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     InsertValuesParam = [
+        maps:get(<<"sellingPricePercentage">>, ReqData),
         maps:get(<<"siteName">>, ReqData),
         maps:get(<<"address">>, ReqData),
         maps:get(<<"createdBy">>, ReqData)
     ],
-    SqlInsertStr = <<"INSERT INTO sites (site_name, address, created_by) VALUES (?, ?, ?)">>,
+    SqlInsertStr = <<"INSERT INTO sites (selling_price_percentage, site_name, address, created_by) VALUES (?, ?, ?, ?)">>,
     ok = mysql_poolboy:query(pool1, SqlInsertStr , InsertValuesParam),
     {ok, myutils_http:response_created(Req0, undefined, undefined), State};
 
