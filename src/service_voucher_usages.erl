@@ -4,7 +4,15 @@
 
 login(VoucherCode, AuthDeviceToken, MacAddr) ->
     case voucher_usage(VoucherCode) of
-        {ok, voucher_used, single_device} -> {ok, registered};
+        {ok, voucher_used, single_device, {Rows_VoucherUsageDevice}} ->
+            DeviceRegistered = lists:search(
+                fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
+                Rows_VoucherUsageDevice
+            ),
+            case DeviceRegistered of
+                {value, _Device} -> {ok, registered};
+                false -> {nok, unknown_device}
+            end;
         {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}} ->
             DeviceRegistered = lists:search(
                 fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
@@ -38,7 +46,7 @@ voucher_usage(VoucherCode) ->
                         MaxMultiDevice =/= null ->
                             {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}};
                         true ->
-                            {ok, voucher_used, single_device}
+                            {ok, voucher_used, single_device, {Rows_VoucherUsageDevice}}
                     end;
                 true -> {nok, voucher_expired}
             end;
@@ -72,7 +80,7 @@ use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
                         ok = mysql:query(Pid, SqlInsert_VoucherUsageDevice, [LastInsertId, VoucherCode, AuthDeviceToken, MacAddr]),
                         ok
                     end),
-                    {ok, registered};
+                    {ok, new_registered};
 
                 voucher_not_found -> {nok, voucher_not_found}
             end;
