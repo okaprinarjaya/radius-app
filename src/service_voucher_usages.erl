@@ -4,22 +4,36 @@
 
 login(VoucherCode, AuthDeviceToken, MacAddr) ->
     case voucher_usage(VoucherCode) of
-        {voucher_used, single_device} ->
-            nil;
-        {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}} ->
-            nil;
-        voucher_unused ->
-            use_voucher(VoucherCode, AuthDeviceToken, MacAddr)
+        {voucher_used, single_device} -> nil;
+        {voucher_used, multi_device, {_MaxMultiDevice, Rows_VoucherUsageDevice}} ->
+            DeviceSearch = lists:search(
+                fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
+                Rows_VoucherUsageDevice
+            ),
+            case DeviceSearch of
+                {value, _Device} -> device_already_exists;
+                false -> add_new_device_with_same_voucher
+            end;
+        voucher_unused -> use_voucher(VoucherCode, AuthDeviceToken, MacAddr);
+        voucher_expired -> voucher_expired
     end.
 
 voucher_usage(VoucherCode) ->
     case retrieve_voucher_usage(VoucherCode) of
-        {[_VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, _VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} when MaxMultiDevice =/= null andalso length(Rows_VoucherUsageDevice) > 1 ->
-            {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}};
-        {_RowVoucherUsage, _Rows_VoucherUsageDevice} ->
-            {voucher_used, single_device};
-        voucher_unused ->
-            voucher_unused
+        {[_VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} ->
+            EndAtUnixTime = qdate:to_unixtime(VcEndAt),
+            CurrentUnixTime = qdate:unixtime(),
+            if 
+                EndAtUnixTime >= CurrentUnixTime ->
+                    if
+                        MaxMultiDevice =/= null ->
+                            {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}};
+                        true ->
+                            {voucher_used, single_device}
+                    end;
+                true -> voucher_expired
+            end;
+        voucher_unused -> voucher_unused
     end.
 
 use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
@@ -51,11 +65,9 @@ use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
                     end),
                     voucher_found;
 
-                voucher_not_found ->
-                    voucher_not_found
+                voucher_not_found -> voucher_not_found
             end;
-        true ->
-            voucher_not_found
+        true -> voucher_not_found
     end.
 
 retrieve_voucher(VoucherCode) ->
@@ -78,8 +90,7 @@ WHERE
         length(Rows) > 0 ->
             [Row|_T] = Rows,
             {voucher_found, Row};
-        true ->
-            voucher_not_found
+        true -> voucher_not_found
     end.
 
 retrieve_voucher_usage(VoucherCode) ->
@@ -109,7 +120,6 @@ WHERE
                 SqlSelect_VoucherUsageDevice = <<"SELECT * FROM voucher_usage_devices WHERE voucher_usage_id = ? AND voucher_code = ?">>,
                 {ok, _Cols1, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [VoucherUsageId, VoucherCode]),
                 {Row_VoucherUsage, Rows_VoucherUsageDevice};
-            true ->
-                voucher_unused
+            true -> voucher_unused
         end
     end).
