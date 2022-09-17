@@ -4,36 +4,45 @@
 
 login(VoucherCode, AuthDeviceToken, MacAddr) ->
     case voucher_usage(VoucherCode) of
-        {voucher_used, single_device} -> nil;
-        {voucher_used, multi_device, {_MaxMultiDevice, Rows_VoucherUsageDevice}} ->
-            DeviceSearch = lists:search(
+        {ok, voucher_used, single_device} -> {ok, registered};
+        {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}} ->
+            DeviceRegistered = lists:search(
                 fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
                 Rows_VoucherUsageDevice
             ),
-            case DeviceSearch of
-                {value, _Device} -> device_already_exists;
-                false -> add_new_device_with_same_voucher
+            case DeviceRegistered of
+                {value, _Device} -> {ok, registered};
+                false ->
+                    Params = [
+                        {vc_usage_id, VcUsageId},
+                        {auth_device_token, AuthDeviceToken},
+                        {vc_code, VoucherCode},
+                        {mac_addr, MacAddr},
+                        {max_multi_device, MaxMultiDevice},
+                        {total_devices, length(Rows_VoucherUsageDevice)}
+                    ],
+                    use_same_voucher_for_new_device(Params)
             end;
-        voucher_unused -> use_voucher(VoucherCode, AuthDeviceToken, MacAddr);
-        voucher_expired -> voucher_expired
+        {ok, voucher_unused} -> use_voucher(VoucherCode, AuthDeviceToken, MacAddr);
+        {nok, voucher_expired} -> {nok, voucher_expired}
     end.
 
 voucher_usage(VoucherCode) ->
     case retrieve_voucher_usage(VoucherCode) of
-        {[_VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} ->
+        {[VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} ->
             EndAtUnixTime = qdate:to_unixtime(VcEndAt),
             CurrentUnixTime = qdate:unixtime(),
             if 
                 EndAtUnixTime >= CurrentUnixTime ->
                     if
                         MaxMultiDevice =/= null ->
-                            {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}};
+                            {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}};
                         true ->
-                            {voucher_used, single_device}
+                            {ok, voucher_used, single_device}
                     end;
-                true -> voucher_expired
+                true -> {nok, voucher_expired}
             end;
-        voucher_unused -> voucher_unused
+        voucher_unused -> {ok, voucher_unused}
     end.
 
 use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
@@ -63,11 +72,29 @@ use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
                         ok = mysql:query(Pid, SqlInsert_VoucherUsageDevice, [LastInsertId, VoucherCode, AuthDeviceToken, MacAddr]),
                         ok
                     end),
-                    voucher_found;
+                    {ok, registered};
 
-                voucher_not_found -> voucher_not_found
+                voucher_not_found -> {nok, voucher_not_found}
             end;
-        true -> voucher_not_found
+        true -> {nok, voucher_not_found}
+    end.
+
+use_same_voucher_for_new_device(Params) ->
+    {max_multi_device, MaxMultiDevice} = lists:keyfind(max_multi_device, 1, Params),
+    {total_devices, TotalDevices} = lists:keyfind(total_devices, 1, Params),
+
+    if
+        TotalDevices =:= MaxMultiDevice ->
+            {nok, max_multi_device_exceeded};
+        true ->
+            {vc_usage_id, VoucherUsageId} = lists:keyfind(vc_usage_id, 1, Params),
+            {vc_code, VoucherCode} = lists:keyfind(vc_code, 1, Params),
+            {auth_device_token, AuthDeviceToken} = lists:keyfind(auth_device_token, 1, Params),
+            {mac_addr, MacAddr} = lists:keyfind(mac_addr, 1, Params),
+            
+            SqlInsert_VoucherUsageDevice = <<"INSERT INTO voucher_usage_devices (voucher_usage_id, voucher_code, auth_device_token, mac) VALUES (?,?,?,?)">>,
+            ok = mysql_poolboy:query(pool1, SqlInsert_VoucherUsageDevice , [VoucherUsageId, VoucherCode, AuthDeviceToken, MacAddr]),
+            {ok, new_registered}
     end.
 
 retrieve_voucher(VoucherCode) ->
