@@ -1,7 +1,8 @@
 -module(myutils_http).
 
 -export([
-    request_read_body_json/2, 
+    request_read_body_json/2,
+    request_read_querystring/2, 
     response_ok/3, 
     response_created/3, 
     response_unauthorized/3, 
@@ -56,4 +57,13 @@ request_read_body_json(Req0, Acc) ->
             jiffy:decode(Data, [return_maps]);
         {more, Data, Req} ->
             request_read_body_json(Req, <<Acc/binary, Data/binary>>)
+    end.
+
+request_read_querystring(Req0, QueryStringItem) ->
+    ParsedQs = cowboy_req:parse_qs(Req0),
+    case lists:keyfind(QueryStringItem, 1, ParsedQs) of
+        {_, Item} ->
+            Item;
+        false -> 
+            nil
     end.
