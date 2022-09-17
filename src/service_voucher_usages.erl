@@ -1,26 +1,32 @@
 -module(service_voucher_usages).
 
--export([use_voucher/3, voucher_usage/3]).
+-export([use_voucher/3, voucher_usage/1, login/3]).
 
-voucher_usage(VoucherCode, AuthDeviceToken, MacAddr) ->
+login(VoucherCode, AuthDeviceToken, MacAddr) ->
+    case voucher_usage(VoucherCode) of
+        {voucher_used, single_device} ->
+            nil;
+        {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}} ->
+            nil;
+        voucher_unused ->
+            use_voucher(VoucherCode, AuthDeviceToken, MacAddr)
+    end.
+
+voucher_usage(VoucherCode) ->
     case retrieve_voucher_usage(VoucherCode) of
-        {Row_VoucherUsage, Rows_VoucherUsageDevice} ->
-            [_VoucherUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, _VcEndAt, MaxMultiDevice] = Row_VoucherUsage,
-            if
-                MaxMultiDevice =/= null andalso length(Rows_VoucherUsageDevice) > 1 ->
-                    multi_device;
-                true ->
-                    single_device
-            end;
-        voucher_not_found ->
-            voucher_not_found
+        {[_VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, _VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} when MaxMultiDevice =/= null andalso length(Rows_VoucherUsageDevice) > 1 ->
+            {voucher_used, multi_device, {MaxMultiDevice, Rows_VoucherUsageDevice}};
+        {_RowVoucherUsage, _Rows_VoucherUsageDevice} ->
+            {voucher_used, single_device};
+        voucher_unused ->
+            voucher_unused
     end.
 
 use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
     if 
         VoucherCode =/= nil ->
             case retrieve_voucher(VoucherCode) of
-                [VoucherCode, DurationValue, DurationUnit, VoucherCategoryId, SiteId, _MaxMultiDevice] ->
+                {voucher_found, [VoucherCode, DurationValue, DurationUnit, VoucherCategoryId, SiteId, _MaxMultiDevice]} ->
                     SqlInsert_VoucherUsage = <<"INSERT INTO voucher_usages (voucher_code, voucher_category_id, site_id, start_at, end_at) VALUES (?,?,?,?,?)">>,
                     SqlInsert_VoucherUsageDevice = <<"INSERT INTO voucher_usage_devices (voucher_usage_id, voucher_code, auth_device_token, mac) VALUES (?,?,?,?)">>,
 
@@ -37,12 +43,14 @@ use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
                     end,
 
 
-                    mysql_poolboy:transaction(pool1, fun (Pid) ->
+                    {atomic, ok} = mysql_poolboy:transaction(pool1, fun (Pid) ->
                         ok = mysql:query(Pid, SqlInsert_VoucherUsage , [VoucherCode, VoucherCategoryId, SiteId, StartAt, EndAt]),
                         LastInsertId = mysql:insert_id(Pid),
                         ok = mysql:query(Pid, SqlInsert_VoucherUsageDevice, [LastInsertId, VoucherCode, AuthDeviceToken, MacAddr]),
                         ok
-                    end);
+                    end),
+                    voucher_found;
+
                 voucher_not_found ->
                     voucher_not_found
             end;
@@ -69,7 +77,7 @@ WHERE
     if 
         length(Rows) > 0 ->
             [Row|_T] = Rows,
-            Row;
+            {voucher_found, Row};
         true ->
             voucher_not_found
     end.
@@ -92,6 +100,7 @@ WHERE
 ",
     mysql_poolboy:with(pool1, fun(Pid) ->
         {ok, _Cols0, Rows_VoucherUsage} = mysql:query(Pid, SqlSelect_VoucherUsage, [VoucherCode]),
+
         if
             length(Rows_VoucherUsage) > 0 ->
                 [Row_VoucherUsage|_T] = Rows_VoucherUsage,
@@ -101,6 +110,6 @@ WHERE
                 {ok, _Cols1, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [VoucherUsageId, VoucherCode]),
                 {Row_VoucherUsage, Rows_VoucherUsageDevice};
             true ->
-                voucher_not_found
+                voucher_unused
         end
     end).
