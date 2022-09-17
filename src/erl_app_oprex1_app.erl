@@ -11,7 +11,6 @@ start(_StartType, _StartArgs) ->
         {"/voucher-categories", handler_voucher_categories, []},
         {"/sites", handler_sites, []},
         {"/vouchers", handler_vouchers, []},
-        {"/voucher-usages", handler_voucher_usages, []},
         {"/_create-jwt", handler_create_jwt, []},
         {"/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}}
     ],

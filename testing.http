@@ -43,10 +43,3 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzN
     "siteId": 1,
     "maxMultiDevice": 3
 }
-
-###
-
-GET http://localhost:8080/voucher-usages?voucher=1792216OZYA5XP__
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzOTY4ODMsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.v3IOq0VU9NGGsK1QRh-4L6c1P4RdS_V-jyhbtvnTBMw
