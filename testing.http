@@ -7,10 +7,10 @@ Accept: application/json
 POST http://localhost:8080/sites
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0NjcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fN_nsWQxrHFjJWlM5u3KJIubgAVUKSIEzf68aUnZznQ
 
 {
-    "sellingPricePercentage": 5,
+    "sellingPricePercentage": 3,
     "siteName": "Cell & Net",
     "address": "Jalan Raya, Anjatan, Kec. Anjatan, Kabupaten Indramayu, Jawa Barat 45256",
     "createdBy": "SYSTEM"
@@ -21,13 +21,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzN
 POST http://localhost:8080/voucher-categories
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0NjcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fN_nsWQxrHFjJWlM5u3KJIubgAVUKSIEzf68aUnZznQ
 
 {
-    "categoryName": "1 Hari",
-    "priceBasic": 10000,
-    "durationValue": 1,
-    "durationUnit": "DAY",
+    "categoryName": "3 Jam",
+    "priceBasic": 3000,
+    "durationValue": 3,
+    "durationUnit": "HOUR",
     "createdBy": "SYSTEM"
 }
 
@@ -36,10 +36,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzN
 POST http://localhost:8080/vouchers
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjMzNDkzNzUsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XaI-gzefjupYuwa0zAL-Vft_OaYyaMVf01yvfVUKSLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0NjcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fN_nsWQxrHFjJWlM5u3KJIubgAVUKSIEzf68aUnZznQ
 
 {
-    "voucherCategoryId": 2,
+    "voucherCategoryId": 1,
     "siteId": 1,
     "maxMultiDevice": 3
 }

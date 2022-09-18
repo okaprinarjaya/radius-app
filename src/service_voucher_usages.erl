@@ -4,7 +4,7 @@
 
 login(VoucherCode, AuthDeviceToken, MacAddr) ->
     case voucher_usage(VoucherCode) of
-        {ok, voucher_used, single_device, {Rows_VoucherUsageDevice}} ->
+        {ok, voucher_used, single_device, {Rows_VoucherUsageDevice, Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
                 fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
                 Rows_VoucherUsageDevice
@@ -12,10 +12,19 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
             case DeviceRegistered of
                 {value, _Device} -> {ok, registered};
                 false ->
-                    % {nok, unknown_device}
-                    maybe_voucher_reactivation()
+                    if 
+                        length(Rows_VoucherReactivation) > 0 ->
+                            Params = [
+                                {vc_code, VoucherCode},
+                                {auth_device_token, AuthDeviceToken},
+                                {mac_addr, MacAddr},
+                                {vc_reactivation, lists:nth(0, Rows_VoucherReactivation)}
+                            ],
+                            voucher_reactivation(Params);
+                        true -> {nok, unknown_device}
+                    end
             end;
-        {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}} ->
+        {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice, _Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
                 fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
                 Rows_VoucherUsageDevice
@@ -39,16 +48,16 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
 
 voucher_usage(VoucherCode) ->
     case retrieve_voucher_usage(VoucherCode) of
-        {[VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice} ->
+        {[VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice, Rows_VoucherReactivation} ->
             EndAtUnixTime = qdate:to_unixtime(VcEndAt),
             CurrentUnixTime = qdate:unixtime(),
             if 
                 EndAtUnixTime >= CurrentUnixTime ->
                     if
                         MaxMultiDevice =/= null ->
-                            {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}};
+                            {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice, Rows_VoucherReactivation}};
                         true ->
-                            {ok, voucher_used, single_device, {Rows_VoucherUsageDevice}}
+                            {ok, voucher_used, single_device, {Rows_VoucherUsageDevice, Rows_VoucherReactivation}}
                     end;
                 true -> {nok, voucher_expired}
             end;
@@ -107,7 +116,7 @@ use_same_voucher_for_new_device(Params) ->
             {ok, new_registered}
     end.
 
-maybe_voucher_reactivation() ->
+voucher_reactivation(_Params) ->
     nil.
 
 retrieve_voucher(VoucherCode) ->
@@ -158,8 +167,12 @@ WHERE
                 [VoucherUsageId, _, _, _, _, _, _] = Row_VoucherUsage,
 
                 SqlSelect_VoucherUsageDevice = <<"SELECT * FROM voucher_usage_devices WHERE voucher_usage_id = ? AND voucher_code = ? AND deleted_at IS NULL">>,
+                SqlSelect_VoucherReactivation = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NOT NULL AND logged_in_at IS NULL">>,
+
                 {ok, _Cols1, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [VoucherUsageId, VoucherCode]),
-                {Row_VoucherUsage, Rows_VoucherUsageDevice};
+                {ok, _Cols2, Rows_VoucherReactivation} = mysql:query(Pid, SqlSelect_VoucherReactivation, [VoucherCode]),
+                
+                {Row_VoucherUsage, Rows_VoucherUsageDevice, Rows_VoucherReactivation};
             true -> voucher_unused
         end
     end).
