@@ -11,7 +11,9 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
             ),
             case DeviceRegistered of
                 {value, _Device} -> {ok, registered};
-                false -> {nok, unknown_device}
+                false ->
+                    % {nok, unknown_device}
+                    maybe_voucher_reactivation()
             end;
         {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice}} ->
             DeviceRegistered = lists:search(
@@ -105,6 +107,9 @@ use_same_voucher_for_new_device(Params) ->
             {ok, new_registered}
     end.
 
+maybe_voucher_reactivation() ->
+    nil.
+
 retrieve_voucher(VoucherCode) ->
     SqlSelect_Voucher = "
 SELECT
@@ -152,7 +157,7 @@ WHERE
                 [Row_VoucherUsage|_T] = Rows_VoucherUsage,
                 [VoucherUsageId, _, _, _, _, _, _] = Row_VoucherUsage,
 
-                SqlSelect_VoucherUsageDevice = <<"SELECT * FROM voucher_usage_devices WHERE voucher_usage_id = ? AND voucher_code = ?">>,
+                SqlSelect_VoucherUsageDevice = <<"SELECT * FROM voucher_usage_devices WHERE voucher_usage_id = ? AND voucher_code = ? AND deleted_at IS NULL">>,
                 {ok, _Cols1, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [VoucherUsageId, VoucherCode]),
                 {Row_VoucherUsage, Rows_VoucherUsageDevice};
             true -> voucher_unused
