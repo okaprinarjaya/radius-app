@@ -4,9 +4,9 @@
 
 login(VoucherCode, AuthDeviceToken, MacAddr) ->
     case voucher_usage(VoucherCode) of
-        {ok, voucher_used, single_device, {Rows_VoucherUsageDevice, Rows_VoucherReactivation}} ->
+        {ok, voucher_used, single_device, {VcUsageId, Rows_VoucherUsageDevice, Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
-                fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
+                fun (T) -> lists:nth(4, T) =:= AuthDeviceToken orelse lists:nth(5, T) =:= MacAddr end,
                 Rows_VoucherUsageDevice
             ),
             case DeviceRegistered of
@@ -16,9 +16,10 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
                         length(Rows_VoucherReactivation) > 0 ->
                             Params = [
                                 {vc_code, VoucherCode},
+                                {vc_usage_id, VcUsageId},
                                 {auth_device_token, AuthDeviceToken},
                                 {mac_addr, MacAddr},
-                                {vc_reactivation, lists:nth(0, Rows_VoucherReactivation)}
+                                {vc_reactivation, lists:nth(1, Rows_VoucherReactivation)}
                             ],
                             voucher_reactivation(Params);
                         true -> {nok, unknown_device}
@@ -26,7 +27,7 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
             end;
         {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice, _Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
-                fun (T) ->  lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
+                fun (T) -> lists:nth(4, T) =:= AuthDeviceToken orelse lists:nth(5, T) =:= MacAddr end,
                 Rows_VoucherUsageDevice
             ),
             case DeviceRegistered of
@@ -57,7 +58,7 @@ voucher_usage(VoucherCode) ->
                         MaxMultiDevice =/= null ->
                             {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice, Rows_VoucherReactivation}};
                         true ->
-                            {ok, voucher_used, single_device, {Rows_VoucherUsageDevice, Rows_VoucherReactivation}}
+                            {ok, voucher_used, single_device, {VcUsageId, Rows_VoucherUsageDevice, Rows_VoucherReactivation}}
                     end;
                 true -> {nok, voucher_expired}
             end;
@@ -116,8 +117,30 @@ use_same_voucher_for_new_device(Params) ->
             {ok, new_registered}
     end.
 
-voucher_reactivation(_Params) ->
-    nil.
+voucher_reactivation(Params) ->
+    {vc_reactivation, VoucherReactivation} = lists:keyfind(vc_reactivation, 1, Params),
+    {vc_usage_id, VcUsageId} = lists:keyfind(vc_usage_id, 1, Params),
+    {auth_device_token, AuthDeviceToken} = lists:keyfind(auth_device_token, 1, Params),
+    {vc_code, VoucherCode} = lists:keyfind(vc_code, 1, Params),
+    {mac_addr, MacAddr} = lists:keyfind(mac_addr, 1, Params),
+
+    NewAuthDeviceToken = lists:nth(4, VoucherReactivation),
+    if
+        AuthDeviceToken =:= NewAuthDeviceToken ->
+            {atomic, ok} = mysql_poolboy:transaction(pool1, fun (Pid) ->
+                Sql1 = <<"UPDATE voucher_usage_devices SET deleted_at = current_timestamp() WHERE voucher_usage_id = ? AND voucher_code = ?">>,
+                Sql2 = <<"INSERT INTO voucher_usage_devices (voucher_usage_id, voucher_code, auth_device_token, mac) VALUES (?,?,?,?)">>,
+                Sql3 = <<"UPDATE voucher_reactivations SET logged_in_at = current_timestamp() WHERE voucher_code = ? AND new_auth_device_token = ?">>,
+
+                mysql:query(Pid, Sql1, [VcUsageId, VoucherCode]),
+                mysql:query(Pid, Sql2, [VcUsageId, VoucherCode, AuthDeviceToken, MacAddr]),
+                mysql:query(Pid, Sql3, [VoucherCode, NewAuthDeviceToken]),
+                ok
+            end),
+            
+            {ok, re_registered};
+        true -> {nok, unknown_device}
+    end.
 
 retrieve_voucher(VoucherCode) ->
     SqlSelect_Voucher = "
