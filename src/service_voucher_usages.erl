@@ -227,12 +227,22 @@ AND vc_use_dev.deleted_at IS NULL
         if
             length(Rows_VoucherUsageDevice) > 0 ->
                 [Row_VoucherUsageDevice|_T] = Rows_VoucherUsageDevice,
-                VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
-
-                SqlSelect_VoucherReactivation = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NOT NULL AND logged_in_at IS NULL">>,
-                {ok, _Cols2, Rows_VoucherReactivation} = mysql:query(Pid, SqlSelect_VoucherReactivation, [VoucherCode]),
                 
-                {Rows_VoucherUsageDevice, Rows_VoucherReactivation};
+                VcEndAt = lists:nth(8, Row_VoucherUsageDevice),
+                EndAtUnixTime = qdate:to_unixtime(VcEndAt),
+                CurrentUnixTime = qdate:unixtime(),
+
+                if 
+                    EndAtUnixTime >= CurrentUnixTime ->
+                        VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
+                        SqlSelect_VoucherReactivation = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NOT NULL AND logged_in_at IS NULL">>,
+                        
+                        {ok, _Cols2, Rows_VoucherReactivation} = mysql:query(Pid, SqlSelect_VoucherReactivation, [VoucherCode]),
+                        {Row_VoucherUsageDevice, Rows_VoucherReactivation};
+
+                    true -> {nok, voucher_expired}
+                end;
+
             true -> nil
         end
     end).
