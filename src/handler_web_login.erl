@@ -10,7 +10,7 @@ init(Req0, State) ->
     MacAddrFixVal = if MacAddr =:= nil -> <<"">>; true -> MacAddr end,
     AuthDeviceTokenExistingFixVal = if AuthDeviceTokenExisting =:= nil -> <<"">>; true -> AuthDeviceTokenExisting end,
 
-    case service_voucher_usages:retrieve_device(MacAddrFixVal, AuthDeviceTokenExistingFixVal) of
+    case service_weblogin:weblogin_retrieve_device(MacAddrFixVal, AuthDeviceTokenExistingFixVal) of
         {nok, voucher_expired} ->
             Tpl0 = bbmustache:parse_file(code:priv_dir(erl_app_oprex1) ++ "/webpage_templates/login-voucher-expired.html"),
             TplCompile0 = bbmustache:compile(Tpl0, #{}),

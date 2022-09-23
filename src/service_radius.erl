@@ -1,12 +1,12 @@
--module(service_voucher_usages).
+-module(service_radius).
 
--export([retrieve_device/2, use_voucher/3, voucher_usage/1, login/3]).
+-export([radius_auth/3]).
 
-login(VoucherCode, AuthDeviceToken, MacAddr) ->
-    case voucher_usage(VoucherCode) of
+radius_auth(VoucherCode, MacAddr, AuthDeviceToken) ->
+    case radius_voucher_usage(VoucherCode) of
         {ok, voucher_used, single_device, {VcUsageId, Rows_VoucherUsageDevice, Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
-                fun (T) -> lists:nth(4, T) =:= AuthDeviceToken orelse lists:nth(5, T) =:= MacAddr end,
+                fun (T) -> lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
                 Rows_VoucherUsageDevice
             ),
             case DeviceRegistered of
@@ -17,17 +17,17 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
                             Params = [
                                 {vc_code, VoucherCode},
                                 {vc_usage_id, VcUsageId},
-                                {auth_device_token, AuthDeviceToken},
                                 {mac_addr, MacAddr},
+                                {auth_device_token, AuthDeviceToken},
                                 {vc_reactivation, lists:nth(1, Rows_VoucherReactivation)}
                             ],
-                            voucher_reactivation(Params);
+                            radius_voucher_reactivation(Params);
                         true -> {nok, unknown_device}
                     end
             end;
         {ok, voucher_used, multi_device, {MaxMultiDevice, VcUsageId, Rows_VoucherUsageDevice, _Rows_VoucherReactivation}} ->
             DeviceRegistered = lists:search(
-                fun (T) -> lists:nth(4, T) =:= AuthDeviceToken orelse lists:nth(5, T) =:= MacAddr end,
+                fun (T) -> lists:nth(5, T) =:= MacAddr orelse lists:nth(4, T) =:= AuthDeviceToken end,
                 Rows_VoucherUsageDevice
             ),
             case DeviceRegistered of
@@ -35,23 +35,20 @@ login(VoucherCode, AuthDeviceToken, MacAddr) ->
                 false ->
                     Params = [
                         {vc_usage_id, VcUsageId},
+                        {mac_addr, MacAddr},
                         {auth_device_token, AuthDeviceToken},
                         {vc_code, VoucherCode},
-                        {mac_addr, MacAddr},
                         {max_multi_device, MaxMultiDevice},
                         {total_devices, length(Rows_VoucherUsageDevice)}
                     ],
-                    use_same_voucher_for_new_device(Params)
+                    radius_use_same_voucher_for_new_device(Params)
             end;
-        {ok, voucher_unused} -> use_voucher(VoucherCode, AuthDeviceToken, MacAddr);
+        {ok, voucher_unused} -> radius_use_voucher(VoucherCode, MacAddr, AuthDeviceToken);
         {nok, voucher_expired} -> {nok, voucher_expired}
     end.
 
-voucher_usage2(MacAddr, AuthDeviceToken) ->
-    nil.
-
-voucher_usage(VoucherCode) ->
-    case retrieve_voucher_usage(VoucherCode) of
+radius_voucher_usage(VoucherCode) ->
+    case radius_retrieve_voucher_usage(VoucherCode) of
         {[VcUsageId, _VcCode, _VcCatId, _VcSiteId, _VcStartAt, VcEndAt, MaxMultiDevice], Rows_VoucherUsageDevice, Rows_VoucherReactivation} ->
             EndAtUnixTime = qdate:to_unixtime(VcEndAt),
             CurrentUnixTime = qdate:unixtime(),
@@ -68,10 +65,10 @@ voucher_usage(VoucherCode) ->
         voucher_unused -> {ok, voucher_unused}
     end.
 
-use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
+radius_use_voucher(VoucherCode, MacAddr, AuthDeviceToken) ->
     if 
         VoucherCode =/= nil ->
-            case retrieve_voucher(VoucherCode) of
+            case radius_retrieve_voucher(VoucherCode) of
                 {voucher_found, [VoucherCode, DurationValue, DurationUnit, VoucherCategoryId, SiteId, _MaxMultiDevice]} ->
                     SqlInsert_VoucherUsage = <<"INSERT INTO voucher_usages (voucher_code, voucher_category_id, site_id, start_at, end_at) VALUES (?,?,?,?,?)">>,
                     SqlInsert_VoucherUsageDevice = <<"INSERT INTO voucher_usage_devices (voucher_usage_id, voucher_code, auth_device_token, mac) VALUES (?,?,?,?)">>,
@@ -102,7 +99,7 @@ use_voucher(VoucherCode, AuthDeviceToken, MacAddr) ->
         true -> {nok, voucher_not_found}
     end.
 
-use_same_voucher_for_new_device(Params) ->
+radius_use_same_voucher_for_new_device(Params) ->
     {max_multi_device, MaxMultiDevice} = lists:keyfind(max_multi_device, 1, Params),
     {total_devices, TotalDevices} = lists:keyfind(total_devices, 1, Params),
 
@@ -120,7 +117,7 @@ use_same_voucher_for_new_device(Params) ->
             {ok, new_registered}
     end.
 
-voucher_reactivation(Params) ->
+radius_voucher_reactivation(Params) ->
     {vc_reactivation, VoucherReactivation} = lists:keyfind(vc_reactivation, 1, Params),
     {vc_usage_id, VcUsageId} = lists:keyfind(vc_usage_id, 1, Params),
     {auth_device_token, AuthDeviceToken} = lists:keyfind(auth_device_token, 1, Params),
@@ -145,7 +142,7 @@ voucher_reactivation(Params) ->
         true -> {nok, unknown_device}
     end.
 
-retrieve_voucher(VoucherCode) ->
+radius_retrieve_voucher(VoucherCode) ->
     SqlSelect_Voucher = "
 SELECT
     vc.voucher_code,
@@ -168,7 +165,7 @@ WHERE
         true -> voucher_not_found
     end.
 
-retrieve_voucher_usage(VoucherCode) ->
+radius_retrieve_voucher_usage(VoucherCode) ->
     SqlSelect_VoucherUsage = "
 SELECT
 	vc_use.id,
@@ -200,49 +197,5 @@ WHERE
                 
                 {Row_VoucherUsage, Rows_VoucherUsageDevice, Rows_VoucherReactivation};
             true -> voucher_unused
-        end
-    end).
-
-retrieve_device(MacAddr, AuthDeviceToken) ->
-    SqlSelect_VoucherUsageDevice = "
-SELECT
-	vc_use_dev.voucher_usage_id,
-	vc_use_dev.voucher_code,
-	vc_use_dev.auth_device_token,
-	vc_use_dev.mac,
-	vc_use.voucher_category_id,
-	vc_use.site_id,
-	vc_use.start_at,
-	vc_use.end_at,
-	vc.max_multi_device
-FROM voucher_usage_devices vc_use_dev
-LEFT JOIN voucher_usages vc_use ON vc_use_dev.voucher_usage_id = vc_use.id
-LEFT JOIN vouchers vc ON vc_use.voucher_code = vc.voucher_code
-WHERE (vc_use_dev.mac = ? OR vc_use_dev.auth_device_token = ?)
-AND vc_use_dev.deleted_at IS NULL
-",
-    mysql_poolboy:with(pool1, fun(Pid) ->
-        {ok, _Cols0, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [MacAddr, AuthDeviceToken]),
-
-        if
-            length(Rows_VoucherUsageDevice) > 0 ->
-                [Row_VoucherUsageDevice|_T] = Rows_VoucherUsageDevice,
-                
-                VcEndAt = lists:nth(8, Row_VoucherUsageDevice),
-                EndAtUnixTime = qdate:to_unixtime(VcEndAt),
-                CurrentUnixTime = qdate:unixtime(),
-
-                if 
-                    EndAtUnixTime >= CurrentUnixTime ->
-                        VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
-                        SqlSelect_VoucherReactivation = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NOT NULL AND logged_in_at IS NULL">>,
-                        
-                        {ok, _Cols2, Rows_VoucherReactivation} = mysql:query(Pid, SqlSelect_VoucherReactivation, [VoucherCode]),
-                        {Row_VoucherUsageDevice, Rows_VoucherReactivation};
-
-                    true -> {nok, voucher_expired}
-                end;
-
-            true -> nil
         end
     end).
