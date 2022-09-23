@@ -8,6 +8,7 @@ start(_StartType, _StartArgs) ->
     Host_Paths = [
         {"/", handler_root, []},
         {"/login", handler_web_login, []},
+        {"/voucher-reactivation", handler_web_voucher_reactivation, []},
         {"/voucher-categories", handler_voucher_categories, []},
         {"/sites", handler_sites, []},
         {"/vouchers", handler_vouchers, []},

@@ -4,6 +4,8 @@
 
 -export([init/2, terminate/3]).
 
+-define(THREE_MONTHS_IN_SECONDS, 7890000).
+
 init(Req0, State) ->
     MacAddr = myutils_http:request_read_querystring(Req0, <<"mac">>),
     AuthDeviceTokenExisting = get_auth_device_token(Req0),
@@ -49,12 +51,11 @@ init(Req0, State) ->
                 AuthDeviceToken =:= nil ->
                     quickrand:seed(),
 
-                    ThreeMonthInSeconds = 7890000,
                     NewAuthDeviceToken = uuid:uuid_to_string(uuid:get_v4_urandom()),
                     NewParams = maps:update("password", NewAuthDeviceToken, Params),
                     TplCompile0 = bbmustache:compile(Tpl0, NewParams),
 
-                    Req1 = cowboy_req:set_resp_cookie(<<"wiqu_auth_device_token">>, NewAuthDeviceToken, Req0,  #{max_age => ThreeMonthInSeconds}),
+                    Req1 = cowboy_req:set_resp_cookie(<<"wiqu_auth_device_token">>, NewAuthDeviceToken, Req0,  #{max_age => ?THREE_MONTHS_IN_SECONDS}),
                     Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html; charset=utf-8">>}, TplCompile0, Req1),
                     {ok, Req2, State};
                 true ->

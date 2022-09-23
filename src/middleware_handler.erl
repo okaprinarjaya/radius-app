@@ -5,7 +5,7 @@
 -export([execute/2]).
 
 execute(Req0, Env) ->
-    ExcludePathList = [<<"/">>, <<"/login">>, <<"/_create-jwt">>],
+    ExcludePathList = [<<"/">>, <<"/login">>, <<"/voucher-reactivation">>, <<"/_create-jwt">>],
     IsMember = lists:member(cowboy_req:path(Req0), ExcludePathList),
     IsAssets = string:find(cowboy_req:path(Req0), <<"assets">>),
     
