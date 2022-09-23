@@ -1,6 +1,6 @@
 -module(service_weblogin).
 
--export([weblogin_retrieve_device/2]).
+-export([weblogin_retrieve_device/2, weblogin_remove_device/1]).
 
 weblogin_retrieve_device(MacAddr, AuthDeviceToken) ->
     SqlSelect_VoucherUsageDevice = "
@@ -20,28 +20,28 @@ LEFT JOIN vouchers vc ON vc_use.voucher_code = vc.voucher_code
 WHERE (vc_use_dev.mac = ? OR vc_use_dev.auth_device_token = ?)
 AND vc_use_dev.deleted_at IS NULL
 ",
-    mysql_poolboy:with(pool1, fun(Pid) ->
-        {ok, _Cols0, Rows_VoucherUsageDevice} = mysql:query(Pid, SqlSelect_VoucherUsageDevice, [MacAddr, AuthDeviceToken]),
+    {ok, _Cols0, Rows_VoucherUsageDevice} = mysql_poolboy:query(pool1, SqlSelect_VoucherUsageDevice, [MacAddr, AuthDeviceToken]),
 
-        if
-            length(Rows_VoucherUsageDevice) > 0 ->
-                [Row_VoucherUsageDevice|_T] = Rows_VoucherUsageDevice,
-                
-                VcEndAt = lists:nth(8, Row_VoucherUsageDevice),
-                EndAtUnixTime = qdate:to_unixtime(VcEndAt),
-                CurrentUnixTime = qdate:unixtime(),
+    if
+        length(Rows_VoucherUsageDevice) > 0 ->
+            [Row_VoucherUsageDevice|_T] = Rows_VoucherUsageDevice,
+            VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
+            
+            VcEndAt = lists:nth(8, Row_VoucherUsageDevice),
+            EndAtUnixTime = qdate:to_unixtime(VcEndAt),
+            CurrentUnixTime = qdate:unixtime(),
 
-                if 
-                    EndAtUnixTime >= CurrentUnixTime ->
-                        VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
-                        SqlSelect_VoucherReactivation = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NOT NULL AND logged_in_at IS NULL">>,
-                        
-                        {ok, _Cols2, Rows_VoucherReactivation} = mysql:query(Pid, SqlSelect_VoucherReactivation, [VoucherCode]),
-                        {Row_VoucherUsageDevice, Rows_VoucherReactivation};
+            if 
+                EndAtUnixTime >= CurrentUnixTime -> Row_VoucherUsageDevice;
+                true -> {nok, voucher_expired, VoucherCode}
+            end;
 
-                    true -> {nok, voucher_expired}
-                end;
+        true -> nil
+    end.
 
-            true -> nil
-        end
+weblogin_remove_device(VoucherCode) ->
+    mysql_poolboy:transaction(pool1, fun (Pid) ->
+        Sql = <<"UPDATE voucher_usage_devices SET deleted_at = current_timestamp() WHERE voucher_code = ?">>,
+        mysql:query(Pid, Sql, [VoucherCode]),
+        ok
     end).
