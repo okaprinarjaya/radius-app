@@ -14,7 +14,7 @@ init(Req0, State) ->
 
     case service_weblogin:weblogin_retrieve_device(MacAddrFixVal, AuthDeviceTokenExistingFixVal) of
         {nok, voucher_expired, VoucherCode} ->
-            {atomic, ok} = service_weblogin:weblogin_remove_device(VoucherCode),
+            {atomic, ok} = service_weblogin:weblogin_remove_device(VoucherCode, MacAddrFixVal, AuthDeviceTokenExistingFixVal),
 
             Tpl0 = bbmustache:parse_file(code:priv_dir(erl_app_oprex1) ++ "/webpage_templates/login-voucher-expired.html"),
             TplCompile0 = bbmustache:compile(Tpl0, #{}),

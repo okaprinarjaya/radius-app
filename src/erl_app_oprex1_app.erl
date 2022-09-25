@@ -8,12 +8,13 @@ start(_StartType, _StartArgs) ->
     Host_Paths = [
         {"/", handler_root, []},
         {"/login", handler_web_login, []},
-        {"/voucher-reactivation", handler_web_voucher_reactivation, []},
-        {"/voucher-categories", handler_voucher_categories, []},
-        {"/sites", handler_sites, []},
-        {"/vouchers", handler_vouchers, []},
-        {"/_create-jwt", handler_create_jwt, []},
-        {"/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}}
+        {"/web/voucher-reactivation", handler_web_voucher_reactivation, []},
+        {"/web/assets/[...]", cowboy_static, {priv_dir, erl_app_oprex1, "webpage_assets"}},
+        {"/api/voucher-categories", handler_voucher_categories, []},
+        {"/api/sites", handler_sites, []},
+        {"/api/vouchers", handler_vouchers, []},
+        {"/api/voucher-reactivations", handler_voucher_reactivations, []},
+        {"/api/_create-jwt", handler_create_jwt, []}
     ],
     Host = {'_', Host_Paths},
     

@@ -1,10 +1,10 @@
-POST http://localhost:8080/_create-jwt
+POST http://localhost:8080/api/_create-jwt
 Content-Type: application/json
 Accept: application/json
 
 ###
 
-POST http://localhost:8080/sites
+POST http://localhost:8080/api/sites
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0NjcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fN_nsWQxrHFjJWlM5u3KJIubgAVUKSIEzf68aUnZznQ
@@ -18,7 +18,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0N
 
 ###
 
-POST http://localhost:8080/voucher-categories
+POST http://localhost:8080/api/voucher-categories
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0NjcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.fN_nsWQxrHFjJWlM5u3KJIubgAVUKSIEzf68aUnZznQ
@@ -33,13 +33,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0N
 
 ###
 
-POST http://localhost:8080/vouchers
+POST http://localhost:8080/api/vouchers
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM5NTAyNzcsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.9KkSTCeHbgc3k6JboIOCl9Kye_vUHKet_mD6bfwqJL4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQwMzY5NzEsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.pixeQAzgmdtMlkTonDGCkGuNdgKKELpS_1meiDSsynY
 
 {
     "voucherCategoryId": 1,
     "siteId": 1,
-    "maxMultiDevice": 3
+    "maxMultiDevice": null
 }
+
+###
+
+POST http://localhost:8080/api/voucher-reactivations
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQxMjA3NzEsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.mc_-mHD464YI5Wd8arX4tSN9J9Vf-ZfVT6gdcf8r9Rk
+
+{
+    "voucherCode": "249221OJKWLAYK"
+}
+

@@ -1,6 +1,6 @@
 -module(service_weblogin).
 
--export([weblogin_retrieve_device/2, weblogin_remove_device/1]).
+-export([weblogin_retrieve_device/2, weblogin_remove_device/3]).
 
 weblogin_retrieve_device(MacAddr, AuthDeviceToken) ->
     SqlSelect_VoucherUsageDevice = "
@@ -39,9 +39,9 @@ AND vc_use_dev.deleted_at IS NULL
         true -> nil
     end.
 
-weblogin_remove_device(VoucherCode) ->
+weblogin_remove_device(VoucherCode, MacAddr, AuthDeviceToken) ->
     mysql_poolboy:transaction(pool1, fun (Pid) ->
-        Sql = <<"UPDATE voucher_usage_devices SET deleted_at = current_timestamp() WHERE voucher_code = ?">>,
-        mysql:query(Pid, Sql, [VoucherCode]),
+        Sql = <<"UPDATE voucher_usage_devices SET deleted_at = current_timestamp() WHERE voucher_code = ? AND mac = ? AND auth_device_token = ?">>,
+        mysql:query(Pid, Sql, [VoucherCode, MacAddr, AuthDeviceToken]),
         ok
     end).

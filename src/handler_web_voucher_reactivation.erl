@@ -30,7 +30,12 @@ init(Req0, State) ->
                                 ok
                             end),
                             
-                            Req1 = cowboy_req:set_resp_cookie(<<"wiqu_auth_device_token">>, NewAuthDeviceToken, Req0,  #{max_age => ?THREE_MONTHS_IN_SECONDS}),
+                            Req1 = cowboy_req:set_resp_cookie(
+                                <<"wiqu_auth_device_token">>,
+                                NewAuthDeviceToken,
+                                Req0,
+                                #{max_age => ?THREE_MONTHS_IN_SECONDS, path => "/"}
+                            ),
                             Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html; charset=utf-8">>}, <<"Voucher reactivated">>, Req1),
                             {ok, Req2, State};
 
