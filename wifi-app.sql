@@ -83,7 +83,7 @@ CREATE TABLE `voucher_usage_devices`  (
   `voucher_usage_id` int(11) NOT NULL,
   `voucher_code` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `auth_device_token` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `mac` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `mac` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `deleted_at` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
@@ -135,5 +135,20 @@ CREATE TABLE `vouchers`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `vouchers_UN`(`voucher_code`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `home_customers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `voucher_code` varchar(16) NOT NULL,
+  `mac` varchar(64) NOT NULL,
+  `site_id` int(11) NOT NULL,
+  `customer_name` varchar(256) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `created_by` varchar(64) NOT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `deleted_by` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
