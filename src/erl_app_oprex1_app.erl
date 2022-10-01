@@ -14,10 +14,11 @@ start(_StartType, _StartArgs) ->
         {"/api/sites", handler_sites, []},
         {"/api/vouchers", handler_vouchers, []},
         {"/api/voucher-reactivations", handler_voucher_reactivations, []},
+        {"/api/voucher-usages", handler_voucher_usages, []},
         {"/api/_create-jwt", handler_create_jwt, []}
     ],
     Host = {'_', Host_Paths},
-    
+
     Dispatch = cowboy_router:compile([Host]),
     {ok, _} = cowboy:start_clear(
         my_http_listener,
@@ -27,7 +28,7 @@ start(_StartType, _StartArgs) ->
             middlewares => [middleware_handler, cowboy_router, cowboy_handler]
         }
     ),
-    
+
     erl_app_oprex1_sup:start_link().
 
 stop(_State) ->

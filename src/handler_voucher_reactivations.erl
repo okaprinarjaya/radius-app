@@ -12,11 +12,10 @@ terminate(_Reason, _Req0, _State) ->
 
 method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
-
     VoucherCode = maps:get(<<"voucherCode">>, ReqData),
 
-    case check_voucher_exists(VoucherCode) of
-        {exists, active} ->
+    case service_voucher:retrieve_voucher_usage(VoucherCode) of
+        {_Row_VoucherUsage, _Rows_VoucherUsageDevice, _Rows_VoucherReactivation} ->
             case check_double_reactivation(VoucherCode) of
                 nil ->
                     quickrand:seed(),
@@ -33,31 +32,14 @@ method_handler(<<"POST">>, Req0, State) ->
                 exists ->
                     {ok, myutils_http:response_badrequest(Req0, undefined, <<"Voucher reactivation already requested">>), State}
             end;
-        {exists, expired} ->
+        voucher_expired ->
             {ok, myutils_http:response_badrequest(Req0, undefined, <<"Voucher expired">>), State};
-        nil ->
-            {ok, myutils_http:response_notfound(Req0, undefined, <<"Voucher not found">>), State}
+        voucher_unused ->
+            {ok, myutils_http:response_notfound(Req0, undefined, <<"Voucher not found / unused">>), State}
     end;
 
 method_handler(_, Req0, State) ->
     {ok, myutils_http:response_notfound(Req0, undefined, undefined), State}.
-
-check_voucher_exists(VoucherCode) ->
-    SqlSelect = <<"SELECT * FROM voucher_usages WHERE voucher_code = ?">>,
-    {ok, _Cols, Rows} = mysql_poolboy:query(pool1, SqlSelect, [VoucherCode]),
-
-    if
-        length(Rows) > 0 ->
-            [Row|_Tail] = Rows,
-            EndAtUnixTime = qdate:to_unixtime(lists:nth(6, Row)),
-            CurrentUnixTime = qdate:unixtime(),
-
-            if
-                EndAtUnixTime >= CurrentUnixTime -> {exists, active};
-                true -> {exists, expired}
-            end;
-        true -> nil
-    end.
 
 check_double_reactivation(VoucherCode) ->
     SqlSelect = <<"SELECT * FROM voucher_reactivations WHERE voucher_code = ? AND reactivated_at IS NULL AND logged_in_at IS NULL">>,

@@ -93,16 +93,18 @@ CREATE TABLE `voucher_usage_devices`  (
 -- Table structure for voucher_usages
 -- ----------------------------
 DROP TABLE IF EXISTS `voucher_usages`;
-CREATE TABLE `voucher_usages`  (
+CREATE TABLE `voucher_usages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `voucher_code` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `voucher_code` varchar(16) NOT NULL,
   `voucher_category_id` int(11) NOT NULL,
   `site_id` int(11) NOT NULL,
   `start_at` datetime NOT NULL,
   `end_at` datetime NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `not_archived` tinyint(1) GENERATED ALWAYS AS (if(`deleted_at` is null,1,NULL)) VIRTUAL,
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `voucher_usages_UN`(`voucher_code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+  UNIQUE KEY `voucher_usages_UNIQUE_KEY` (`voucher_code`,`not_archived`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Table structure for voucher_reactivations
@@ -136,7 +138,7 @@ CREATE TABLE `vouchers`  (
   UNIQUE INDEX `vouchers_UN`(`voucher_code`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
-CREATE TABLE `home_customers` (
+CREATE TABLE `customers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `voucher_code` varchar(16) NOT NULL,
   `mac` varchar(64) NOT NULL,

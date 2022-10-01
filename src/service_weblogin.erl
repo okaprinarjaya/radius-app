@@ -19,6 +19,7 @@ LEFT JOIN voucher_usages vc_use ON vc_use_dev.voucher_usage_id = vc_use.id
 LEFT JOIN vouchers vc ON vc_use.voucher_code = vc.voucher_code
 WHERE (vc_use_dev.mac = ? OR vc_use_dev.auth_device_token = ?)
 AND vc_use_dev.deleted_at IS NULL
+AND vc_use.deleted_at IS NULL
 ",
     {ok, _Cols0, Rows_VoucherUsageDevice} = mysql_poolboy:query(pool1, SqlSelect_VoucherUsageDevice, [MacAddr, AuthDeviceToken]),
 
@@ -26,12 +27,12 @@ AND vc_use_dev.deleted_at IS NULL
         length(Rows_VoucherUsageDevice) > 0 ->
             [Row_VoucherUsageDevice|_T] = Rows_VoucherUsageDevice,
             VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
-            
+
             VcEndAt = lists:nth(8, Row_VoucherUsageDevice),
             EndAtUnixTime = qdate:to_unixtime(VcEndAt),
             CurrentUnixTime = qdate:unixtime(),
 
-            if 
+            if
                 EndAtUnixTime >= CurrentUnixTime -> Row_VoucherUsageDevice;
                 true -> {nok, voucher_expired, VoucherCode}
             end;
