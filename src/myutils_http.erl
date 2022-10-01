@@ -2,11 +2,12 @@
 
 -export([
     request_read_body_json/2,
-    request_read_querystring/2, 
-    response_ok/3, 
-    response_created/3, 
-    response_unauthorized/3, 
+    request_read_querystring/2,
+    response_ok/3,
+    response_created/3,
+    response_unauthorized/3,
     response_notfound/3,
+    response_badrequest/3,
     response_error/3
 ]).
 
@@ -50,6 +51,14 @@ response_notfound(Req0, Data, Message) ->
     },
     cowboy_req:reply(404, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
 
+response_badrequest(Req0, Data, Message) ->
+    RespData = #{
+        <<"status">> => <<"BAD REQUEST">>,
+        <<"message">> => if Message =:= undefined -> <<"Bad Request">>; true -> Message end,
+        <<"data">> => if Data =:= undefined -> null; true -> Data end
+    },
+    cowboy_req:reply(400, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
+
 request_read_body_json(Req0, Acc) ->
     true = cowboy_req:has_body(Req0),
     case cowboy_req:read_body(Req0) of
@@ -64,6 +73,6 @@ request_read_querystring(Req0, QueryStringItem) ->
     case lists:keyfind(QueryStringItem, 1, ParsedQs) of
         {_, Item} ->
             Item;
-        false -> 
+        false ->
             nil
     end.
