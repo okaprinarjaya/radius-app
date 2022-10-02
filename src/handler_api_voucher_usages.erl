@@ -10,6 +10,14 @@ init(Req0, State) ->
 terminate(_Reason, _Req0, _State) ->
     ok.
 
+method_handler(<<"POST">>, Req0, State) ->
+    case cowboy_req:path(Req0) of
+        <<"/api/voucher-usages/_home-customer-register">> ->
+            handle_voucher_usage_home_customer_register(Req0, State);
+        <<"/api/voucher-usages">> ->
+            handle_voucher_usage(Req0, State)
+    end;
+
 method_handler(<<"DELETE">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     VoucherCode = maps:get(<<"voucherCode">>, ReqData),
@@ -40,3 +48,21 @@ method_handler(<<"DELETE">>, Req0, State) ->
 
 method_handler(_, Req0, State) ->
     {ok, myutils_http:response_notfound(Req0, undefined, undefined), State}.
+
+handle_voucher_usage(Req0, State) ->
+    {ok, myutils_http:response_ok(Req0, undefined, undefined), State}.
+
+handle_voucher_usage_home_customer_register(Req0, State) ->
+    quickrand:seed(),
+
+    ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
+    VoucherCode = maps:get(<<"voucherCode">>, ReqData),
+    MacAddr = maps:get(<<"macAddr">>, ReqData),
+    AuthDeviceToken = uuid:uuid_to_string(uuid:get_v4_urandom()),
+
+    case service_voucher:use_voucher(VoucherCode, MacAddr, AuthDeviceToken) of
+        {ok, new_registered} ->
+            {ok, myutils_http:response_created(Req0, undefined, undefined), State};
+        {nok, voucher_not_found} ->
+            {ok, myutils_http:response_notfound(Req0, undefined, <<"Voucher not found">>), State}
+    end.

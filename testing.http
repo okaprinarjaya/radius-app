@@ -74,9 +74,31 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ2Mzc0O
 DELETE http://localhost:8080/api/voucher-usages
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ2NTAzODgsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.px3bWp9tbKdsQqtQoOCQ4kS16RxPEt45aNnwI4nYViE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ3MzQ5NzIsInVzZXJJZCI6WzgzLDg5LDgzLDg0LDY5LDc3XSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XLLh3COIsHHyDg4XGivyoTKJGfGqRY4J8ztGRJLXlz8
 
 {
     "voucherCode": "249221BKRQDP1R"
 }
 
+###
+
+POST http://localhost:8080/api/voucher-usages
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ3MzQ5NzIsInVzZXJJZCI6WzgzLDg5LDgzLDg0LDY5LDc3XSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.XLLh3COIsHHyDg4XGivyoTKJGfGqRY4J8ztGRJLXlz8
+
+{
+    "voucherCode": "249221BKRQDP1R"
+}
+
+###
+
+POST http://localhost:8080/api/voucher-usages/_home-customer-register
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ3MzY5NTMsInVzZXJJZCI6WzgzLDg5LDgzLDg0LDY5LDc3XSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.c2aqC6sUqUl0EfgcR6lowI6Dg_kj_Hk93Q6PptKHu-8
+
+{
+    "voucherCode": "310221XERG1Q8N",
+    "macAddr": "8E:A0:9F:4B:20:73"
+}

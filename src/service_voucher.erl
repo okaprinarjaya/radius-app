@@ -1,6 +1,44 @@
 -module(service_voucher).
 
--export([retrieve_voucher/1, retrieve_voucher_usage/1]).
+-export([use_voucher/3, retrieve_voucher/1, retrieve_voucher_usage/1]).
+
+use_voucher(VoucherCode, MacAddr, AuthDeviceToken) ->
+    if
+        VoucherCode =/= nil ->
+            case service_voucher:retrieve_voucher(VoucherCode) of
+                {voucher_found, [VoucherCode, DurationValue, DurationUnit, VoucherCategoryId, SiteId, _MaxMultiDevice]} ->
+                    StartAt = qdate:to_date(qdate:unixtime()),
+                    EndAt = case previous_registered_voucher_expiration(VoucherCode) of
+                        {ok, EndAt_Existing} -> EndAt_Existing;
+                        nil ->
+                            EndAt_New = case DurationUnit of
+                                <<"HOUR">> ->
+                                    qdate:to_date(qdate:add_hours(DurationValue, StartAt));
+                                <<"DAY">> ->
+                                    qdate:to_date(qdate:add_days(DurationValue, StartAt));
+                                <<"WEEK">> ->
+                                    qdate:to_date(qdate:add_weeks(DurationValue, StartAt));
+                                <<"MONTH">> ->
+                                    qdate:to_date(qdate:add_months(DurationValue, StartAt))
+                            end,
+                            EndAt_New
+                    end,
+
+                    Sql1 = <<"INSERT INTO voucher_usages (voucher_code, voucher_category_id, site_id, start_at, end_at) VALUES (?,?,?,?,?)">>,
+                    Sql2 = <<"INSERT INTO voucher_usage_devices (voucher_usage_id, voucher_code, auth_device_token, mac) VALUES (?,?,?,?)">>,
+
+                    {atomic, ok} = mysql_poolboy:transaction(pool1, fun (Pid) ->
+                        ok = mysql:query(Pid, Sql1 , [VoucherCode, VoucherCategoryId, SiteId, StartAt, EndAt]),
+                        LastInsertId = mysql:insert_id(Pid),
+                        ok = mysql:query(Pid, Sql2, [LastInsertId, VoucherCode, AuthDeviceToken, MacAddr]),
+                        ok
+                    end),
+                    {ok, new_registered};
+
+                voucher_not_found -> {nok, voucher_not_found}
+            end;
+        true -> {nok, voucher_not_found}
+    end.
 
 retrieve_voucher(VoucherCode) ->
     SqlSelect_Voucher = "
@@ -70,3 +108,15 @@ AND vc_use.deleted_at IS NULL
             true -> voucher_unused
         end
     end).
+
+previous_registered_voucher_expiration(VoucherCode) ->
+    Sql = <<"SELECT end_at FROM voucher_usages WHERE voucher_code = ? AND deleted_at IS NOT NULL ORDER BY deleted_at DESC LIMIT 1">>,
+    {ok, _Cols, Rows} = mysql_poolboy:query(pool1, Sql, [VoucherCode]),
+
+    if
+        length(Rows) > 0 ->
+            [Row|_T] = Rows,
+            EndAt = lists:nth(1, Row),
+            {ok, EndAt};
+        true -> nil
+    end.

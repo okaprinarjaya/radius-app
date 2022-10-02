@@ -15,6 +15,7 @@ start(_StartType, _StartArgs) ->
         {"/api/vouchers", handler_api_vouchers, []},
         {"/api/voucher-reactivations", handler_api_voucher_reactivations, []},
         {"/api/voucher-usages", handler_api_voucher_usages, []},
+        {"/api/voucher-usages/_home-customer-register", handler_api_voucher_usages, []},
         {"/api/customers", handler_api_customers, []},
         {"/api/_create-jwt", handler_api_create_jwt, []}
     ],
