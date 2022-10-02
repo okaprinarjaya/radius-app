@@ -14,7 +14,7 @@ init(Req0, State) ->
 
     case service_weblogin:weblogin_retrieve_device(MacAddrFixVal, AuthDeviceTokenExistingFixVal) of
         {nok, voucher_expired, VoucherCode} ->
-            {atomic, ok} = service_weblogin:weblogin_remove_device(VoucherCode, MacAddrFixVal, AuthDeviceTokenExistingFixVal),
+            {atomic, ok} = service_weblogin:weblogin_remove_device(VoucherCode),
 
             Tpl0 = bbmustache:parse_file(code:priv_dir(erl_app_oprex1) ++ "/webpage_templates/login-voucher-expired.html"),
             TplCompile0 = bbmustache:compile(Tpl0, #{}),
@@ -63,7 +63,7 @@ init(Req0, State) ->
                     Req = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html; charset=utf-8">>}, TplCompile0, Req0),
                     {ok, Req, State}
             end;
-        
+
         Row_VoucherUsageDevice ->
             VoucherCode = lists:nth(2, Row_VoucherUsageDevice),
             Params = #{
