@@ -1,4 +1,4 @@
--module(handler_create_jwt).
+-module(handler_api_create_jwt).
 
 -behaviour(cowboy_handler).
 

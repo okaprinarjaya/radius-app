@@ -1,4 +1,4 @@
--module(handler_sites).
+-module(handler_api_voucher_categories).
 
 -behaviour(cowboy_handler).
 
@@ -15,9 +15,9 @@ method_handler(<<"GET">>, Req0, State) ->
     RespMsg = [
         <<"Hello!">>,
         <<" ">>,
-        maps:get(<<"userName">>, UserAuthInfo), 
-        <<", with ID: ">>, 
-        maps:get(<<"userId">>, UserAuthInfo), 
+        maps:get(<<"userName">>, UserAuthInfo),
+        <<", with ID: ">>,
+        maps:get(<<"userId">>, UserAuthInfo),
         <<", Role: ">>,
         maps:get(<<"role">>, UserAuthInfo)
     ],
@@ -27,14 +27,17 @@ method_handler(<<"GET">>, Req0, State) ->
 method_handler(<<"POST">>, Req0, State) ->
     ReqData = myutils_http:request_read_body_json(Req0, <<"">>),
     InsertValuesParam = [
-        maps:get(<<"sellingPricePercentage">>, ReqData),
-        maps:get(<<"siteName">>, ReqData),
-        maps:get(<<"address">>, ReqData),
+        maps:get(<<"categoryName">>, ReqData),
+        maps:get(<<"priceBasic">>, ReqData),
+        maps:get(<<"durationValue">>, ReqData),
+        maps:get(<<"durationUnit">>, ReqData),
         maps:get(<<"createdBy">>, ReqData)
     ],
-    SqlInsertStr = <<"INSERT INTO sites (selling_price_percentage, site_name, address, created_by) VALUES (?, ?, ?, ?)">>,
+    SqlInsertStr = <<"INSERT INTO voucher_categories (category_name, price_basic, duration_value, duration_unit, created_by) VALUES (?, ?, ?, ?, ?)">>,
     ok = mysql_poolboy:query(pool1, SqlInsertStr , InsertValuesParam),
-    {ok, myutils_http:response_created(Req0, undefined, undefined), State};
+
+    RespData = #{<<"hello">> => <<"world!">>, <<"attrs">> => #{<<"foo">> => <<"bar">>}},
+    {ok, myutils_http:response_created(Req0, RespData, undefined), State};
 
 method_handler(_, Req0, State) ->
     {ok, myutils_http:response_notfound(Req0, undefined, undefined), State}.

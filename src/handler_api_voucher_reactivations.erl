@@ -1,4 +1,4 @@
--module(handler_voucher_reactivations).
+-module(handler_api_voucher_reactivations).
 
 -behaviour(cowboy_handler).
 
