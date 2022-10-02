@@ -141,16 +141,18 @@ CREATE TABLE `vouchers`  (
 CREATE TABLE `customers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `voucher_code` varchar(16) NOT NULL,
-  `mac` varchar(64) NOT NULL,
+  `mac` varchar(128) NOT NULL,
   `site_id` int(11) NOT NULL,
   `customer_name` varchar(256) NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   `created_by` varchar(64) NOT NULL,
   `updated_by` varchar(64) DEFAULT NULL,
   `deleted_by` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `customers_UN_voucher_code` (`voucher_code`),
+  UNIQUE KEY `customers_UN_mac` (`mac`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

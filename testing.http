@@ -18,6 +18,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0N
 
 ###
 
+POST http://localhost:8080/api/customers
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ3MzM5MzQsInVzZXJJZCI6WzgzLDg5LDgzLDg0LDY5LDc3XSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.F97xp9t4S2Q5agq3dOTxDyDDjdYkBr75N5sd28sU0g0
+
+{
+    "voucherCode": "310221XERG1Q87",
+    "macAddr": "8E:A0:9F:4B:20:73",
+    "siteId": 1,
+    "customerName": "Sujono Hadininggrat"
+}
+
+###
+
 POST http://localhost:8080/api/voucher-categories
 Content-Type: application/json
 Accept: application/json
@@ -36,7 +50,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM1MDY0N
 POST http://localhost:8080/api/vouchers
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ2NTAzODgsInVzZXJJZCI6Wzk3LDk4LDk5LDQ5LDUwLDUxXSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.px3bWp9tbKdsQqtQoOCQ4kS16RxPEt45aNnwI4nYViE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ3MzIwMjMsInVzZXJJZCI6WzgzLDg5LDgzLDg0LDY5LDc3XSwidXNlck5hbWUiOls3OSwxMDcsOTcsMzIsODAsMTE0LDEwNSwxMTAsOTcsMTE0LDEwNiw5NywxMjEsOTddLCJyb2xlIjpbNzksODAsNjksODIsNjUsODQsNzksODJdfQ.Lvt-YNyL1GL0NWMTlKmragPZ5hS-HNWp5L5-P3HVdII
 
 {
     "voucherCategoryId": 1,

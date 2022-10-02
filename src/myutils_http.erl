@@ -8,6 +8,7 @@
     response_unauthorized/3,
     response_notfound/3,
     response_badrequest/3,
+    response_conflict/3,
     response_error/3
 ]).
 
@@ -58,6 +59,14 @@ response_badrequest(Req0, Data, Message) ->
         <<"data">> => if Data =:= undefined -> null; true -> Data end
     },
     cowboy_req:reply(400, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
+
+response_conflict(Req0, Data, Message) ->
+    RespData = #{
+        <<"status">> => <<"CONFLICT">>,
+        <<"message">> => if Message =:= undefined -> <<"Conflict">>; true -> Message end,
+        <<"data">> => if Data =:= undefined -> null; true -> Data end
+    },
+    cowboy_req:reply(409, #{<<"content-type">> => <<"application/json; charset=utf-8">>}, jiffy:encode(RespData), Req0).
 
 request_read_body_json(Req0, Acc) ->
     true = cowboy_req:has_body(Req0),

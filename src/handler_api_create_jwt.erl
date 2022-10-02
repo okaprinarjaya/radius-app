@@ -11,7 +11,7 @@ init(Req0, State) ->
 terminate(_A, _B, _C) -> ok.
 
 method_handler(<<"POST">>, Req0, State) ->
-    Payload = [{userId, "abc123"}, {userName, "Oka Prinarjaya"}, {role, "OPERATOR"}],
+    Payload = [{userId, "SYSTEM"}, {userName, "Oka Prinarjaya"}, {role, "OPERATOR"}],
     Token = myutils_identifier:generate_jwt(Payload),
 
     {ok, myutils_http:response_ok(Req0, Token, undefined), State};
